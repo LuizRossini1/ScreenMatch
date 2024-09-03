@@ -1,10 +1,15 @@
 package br.com.alura.screenmatch.principal;
+import br.com.alura.screenmatch.model.DadosSerie;
+import br.com.alura.screenmatch.model.DadosTemporada;
 import br.com.alura.screenmatch.service.ConsumoAPI;
-import java.util.Scanner;
+import br.com.alura.screenmatch.service.ConverterDados;
+
+import java.util.*;
 
 public class Principal {
     private Scanner leitura = new Scanner(System.in);
-    ConsumoAPI api = new ConsumoAPI();
+    private ConsumoAPI api = new ConsumoAPI();
+    private ConverterDados converteDados = new ConverterDados();
     private final String ENDERECO = "https://www.omdbapi.com/?t=";
     private final String API_KEY = "&apikey=82f2795b";
 
@@ -13,5 +18,16 @@ public class Principal {
         var nomeSerie = leitura.nextLine();
         var json = api.obterDados(ENDERECO + nomeSerie
                 .replace(" ", "+") + API_KEY);
+        DadosSerie dados = converteDados.obterDados(json, DadosSerie.class);
+        System.out.println(dados);
+
+        List<DadosTemporada> temporadas = new ArrayList<>();
+		for (int i = 1; i<= dados.totalTemporadas(); i++) {
+			json = api.obterDados(ENDERECO + nomeSerie
+                    .replace(" ", "+") + "&season=" + i + API_KEY);
+			DadosTemporada dadosTemporada = converteDados.obterDados(json, DadosTemporada.class);
+			temporadas.add(dadosTemporada);
+		}
+		temporadas.forEach(System.out::println);
     }
 }
